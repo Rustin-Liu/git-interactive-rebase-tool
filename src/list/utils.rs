@@ -137,3 +137,39 @@ pub fn get_visual_footer_compact(config: &Config) -> String {
 		get_input_short_name(config.input_help.as_str()),
 	)
 }
+
+pub fn get_footer_help_lines(config: &Config) -> [(String, &str); 19] {
+	[
+		(get_input_short_name(config.input_move_up.as_str()), "Move selection up"),
+		(
+			get_input_short_name(config.input_move_down.as_str()),
+			"Move selection down",
+		),
+		(String.from(config.input_abort.as_str()), "Quit"),
+		(String.from(config.input_force_abort.as_str()), "Force Quit"),
+		(String.from(config.input_rebase.as_str()), "Rebase"),
+		(String.from(config.input_force_rebase.as_str()), "Force Rebase"),
+		(String.from(config.input_show_commit.as_str()), "Show Commit"),
+		(
+			String.from(config.input_move_selection_down.as_str()),
+			"Move lines Down",
+		),
+		(String.from(config.input_move_selection_up.as_str()), "Move lines Up"),
+		(String.from(config.input_action_break.as_str()), "Break"),
+		(String.from(config.input_action_pick.as_str()), "Pick"),
+		(String.from(config.input_action_reword.as_str()), "Reword"),
+		(String.from(config.input_action_edit.as_str()), "Edit"),
+		(String.from(config.input_action_squash.as_str()), "Squash"),
+		(String.from(config.input_action_fixup.as_str()), "Fixup"),
+		(String.from(config.input_action_drop.as_str()), "Drop"),
+		(
+			String.from(config.input_edit.as_str()),
+			"Edit the command of an exec action",
+		),
+		(
+			String.from(config.input_move_selection_up.as_str()),
+			"Open the external editor",
+		),
+		(String.from(config.input_help.as_str()), "Help"),
+	]
+}
