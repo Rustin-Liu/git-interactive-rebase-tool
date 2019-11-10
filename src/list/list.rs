@@ -129,7 +129,8 @@ impl<'l> ProcessModule for List<'l> {
 		if is_visual_mode {
 			if view_width >= self.normal_footer_compact.len() * 2 {
 				self.render_helps(view, view_width);
-			}else if view_width >= self.visual_footer_full.len() {
+			}
+			else if view_width >= self.visual_footer_full.len() {
 				view.draw_str(self.visual_footer_full.as_str());
 			}
 			else if view_width >= self.visual_footer_compact.len() {
@@ -396,7 +397,7 @@ impl<'l> List<'l> {
 		helps.reverse();
 		let mut width = view_width;
 		while !helps.is_empty() {
-			let help =  helps.last().unwrap();
+			let help = helps.last().unwrap();
 			let help_name_str = format!(" {:2} ", help.0);
 			let help_str = format!("{}   ", help.1);
 			if width > help_name_str.len() + help_str.len() {
@@ -422,7 +423,7 @@ impl<'l> List<'l> {
 			let mut result = 2;
 			let mut width = view_width;
 			while !helps.is_empty() {
-				let help =  helps.last().unwrap();
+				let help = helps.last().unwrap();
 				let help_name_str = format!(" {} ", help.0);
 				let help_str = format!("{} ", help.1);
 				if width > help_name_str.len() + help_str.len() {
