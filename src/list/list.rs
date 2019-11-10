@@ -7,6 +7,7 @@ use crate::input::{Input, InputHandler};
 use crate::line::Line;
 use crate::list::utils::{
 	get_action_color,
+	get_footer_help_lines,
 	get_normal_footer_compact,
 	get_normal_footer_full,
 	get_visual_footer_compact,
@@ -32,6 +33,7 @@ pub struct List<'l> {
 	state: ListState,
 	visual_footer_compact: String,
 	visual_footer_full: String,
+	footer_help_lines: [(String, &'l str); 19],
 }
 
 fn get_maximum_line_length(is_full_width: bool, lines: &[Line]) -> usize {
@@ -119,13 +121,15 @@ impl<'l> ProcessModule for List<'l> {
 			&view_lines,
 			self.scroll_position.get_top_position(),
 			self.scroll_position.get_left_position(),
-			view_height - 2,
+			view_height - self.calculate_footer_help_height(view_width) as usize,
 		);
 
 		view.set_color(DisplayColor::Normal, false);
 		view.set_style(true, false, false);
 		if is_visual_mode {
-			if view_width >= self.visual_footer_full.len() {
+			if view_width >= self.normal_footer_compact.len() * 2 {
+				self.render_helps(view, view_width);
+			}else if view_width >= self.visual_footer_full.len() {
 				view.draw_str(self.visual_footer_full.as_str());
 			}
 			else if view_width >= self.visual_footer_compact.len() {
@@ -134,6 +138,9 @@ impl<'l> ProcessModule for List<'l> {
 			else {
 				view.draw_str(format!("(Visual) Help: {}", self.config.input_help).as_str());
 			}
+		}
+		else if view_width >= self.normal_footer_compact.len() * 2 {
+			self.render_helps(view, view_width);
 		}
 		else if view_width >= self.normal_footer_full.len() {
 			view.draw_str(self.normal_footer_full.as_str());
@@ -158,6 +165,7 @@ impl<'l> List<'l> {
 			state: ListState::Normal,
 			visual_footer_compact: get_visual_footer_compact(config),
 			visual_footer_full: get_visual_footer_full(config),
+			footer_help_lines: get_footer_help_lines(config),
 		}
 	}
 
@@ -381,5 +389,55 @@ impl<'l> List<'l> {
 			segments.push(LineSegment::new(line.get_comment().as_str()));
 		}
 		segments
+	}
+
+	fn render_helps(&self, view: &View, view_width: usize) {
+		let mut helps = self.footer_help_lines.to_vec();
+		helps.reverse();
+		let mut width = view_width;
+		while !helps.is_empty() {
+			let help =  helps.last().unwrap();
+			let help_name_str = format!(" {:2} ", help.0);
+			let help_str = format!("{}   ", help.1);
+			if width > help_name_str.len() + help_str.len() {
+				helps.pop();
+				view.set_color(DisplayColor::IndicatorColor, false);
+				view.draw_str(help_name_str.as_str());
+				view.set_color(DisplayColor::Normal, false);
+				view.draw_str(help_str.as_str());
+				width = width - (help_name_str.len() + help_str.len());
+			}
+			else {
+				let padding = " ".repeat(width);
+				view.draw_str((padding).as_str());
+				width = view_width;
+			}
+		}
+	}
+
+	fn calculate_footer_help_height(&self, view_width: usize) -> i32 {
+		if view_width >= self.normal_footer_compact.len() * 2 {
+			let mut helps = self.footer_help_lines.to_vec();
+			helps.reverse();
+			let mut result = 2;
+			let mut width = view_width;
+			while !helps.is_empty() {
+				let help =  helps.last().unwrap();
+				let help_name_str = format!(" {} ", help.0);
+				let help_str = format!("{} ", help.1);
+				if width > help_name_str.len() + help_str.len() {
+					helps.pop();
+					width = width - (help_name_str.len() + help_str.len());
+				}
+				else {
+					width = view_width;
+					result += 2;
+				}
+			}
+			result
+		}
+		else {
+			2
+		}
 	}
 }
